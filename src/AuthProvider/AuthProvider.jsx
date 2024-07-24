@@ -1,81 +1,47 @@
-
-
-import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, GithubAuthProvider, updateProfile } from "firebase/auth";
-import { createContext, useEffect, useState } from "react";
-import auth from "../Firebase/firebase.config";
-import useAxiosPublic from "../Hooks/axiospublic/useAxiosPublic";
-
-export const AuthContext = createContext(null);
+import  { createContext, useState, useEffect } from 'react';
+import jwtDecode from 'jwt-decode';
+import PropTypes from 'prop-types';
+export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-    const axiosPublic = useAxiosPublic()
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const googleProvider = new GoogleAuthProvider();
-    const gitHubProvider = new GithubAuthProvider();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const createUser = (email, password) => {
-        setLoading(true);
-        return createUserWithEmailAndPassword(auth, email, password);
-    };
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        setUser(decodedToken); 
+      } catch (error) {
+        console.error("Invalid token:", error);
+        localStorage.removeItem('token'); 
+      }
+    }
+    setLoading(false);
+  }, []);
 
-    const updateProfiles = (name, photo) => {
-        return updateProfile(auth.currentUser, {
-            displayName: name,
-            photoURL: photo
-        });
-    };
+  const login = (token) => {
+    localStorage.setItem('token', token);
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken); // Set the decoded token payload as user state
+  };
 
-    const signInUser = (email, password) => {
-        setLoading(true);
-        return signInWithEmailAndPassword(auth, email, password);
-    };
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+  };
 
-    const signInWithGoogle = () => {
-        setLoading(true);
-        return signInWithPopup(auth, googleProvider);
-    };
-
-    const signInWithGithub = () => {
-        setLoading(true);
-        return signInWithPopup(auth, gitHubProvider);
-    };
-
-    const logOut = () => {
-        setLoading(true);
-        return signOut(auth);
-    };
-
-    useEffect(() => {
-        const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-            //console.log("Auth state changed:", currentUser);
-            setUser(currentUser);
-            if(currentUser){
-                const userInfo = {email : currentUser.email};
-                axiosPublic.post('/jwt',userInfo)
-                .then(res =>{
-                    if(res.data.token){
-                        localStorage.setItem('access-token',res.data.token)
-                    }
-                })
-                
-            }else{
-                localStorage.removeItem('access-token');
-            }
-            setLoading(false);
-        });
-        return () => {
-            unSubscribe();
-        };
-    }, []);
-
-    const authInfo = { user, loading, createUser, signInUser, signInWithGoogle, signInWithGithub, logOut, updateProfiles };
-
-    return (
-        <AuthContext.Provider value={authInfo}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;
+
+
+AuthProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+  };

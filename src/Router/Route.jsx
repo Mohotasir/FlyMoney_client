@@ -5,6 +5,7 @@ import {
 import LayoutUI from "../Layout/LayoutUI";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
+import DashBoardLayout from "../Layout/DashBoardLayout";
 
   export const router = createBrowserRouter([
     {
@@ -24,7 +25,7 @@ import Login from "../Pages/Login";
     },
     {
       path:"/dashboard",
-      //element:<PrivateRoute><DashBoardLayout></DashBoardLayout></PrivateRoute> ,
+      element:<DashBoardLayout></DashBoardLayout>,
       children:[
        
       ]

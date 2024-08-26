@@ -1,26 +1,24 @@
 import { Link, useNavigate } from "react-router-dom";
-import img from "../../public/assets/signin.svg";
 import { useState } from "react";
 import useAxiosSequre from "../Hooks/axiosSecqure/useAxiosSequre";
+import useToken from "../Hooks/tokenInfo/useToken";
 
 export default function Login() {
   const [error, setError] = useState('');
   const axiosSequre = useAxiosSequre();
   const navigate = useNavigate();
-
+  const userInfo = useToken()
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
     const password = form.password.value;
     const phone = form.phone.value;
     const email = phone.includes("@") ? phone : null; //////////////////
-
+    console.log(userInfo)
     axiosSequre.post("/login", { email, phone, password })
       .then(response => {
         if (response.status === 200) {
-          const { token, email } = response.data;
-          localStorage.setItem("token", token);
-          localStorage.setItem("email", email);
+          localStorage.setItem("token", response.data.token);
           setError("");
           navigate("/dashboard"); 
         }
@@ -38,37 +36,38 @@ export default function Login() {
   };
 
   return (
-    <div className="relative md:h-[80vh] w-full overflow-hidden ">
-      <div className="absolute inset-0 bg-gradient animate-wave"></div>
-      <div className="relative h-full flex flex-col justify-center items-center md:flex-row gap-4 mx-2 md:mx-6 z-10">
-        <div className="lg:w-1/2 flex justify-center items-center">
-          <img className="lg:p-2 w-2/3" src={img} alt="Sign in" />
-        </div>
-        <div className="md:w-1/2 lg:p-24">
-          <h1 className='text-3xl font-mono text-purple-900 font-bold text-center'>Login</h1>
+    <div className="w-full overflow-hidden font-roboto">
+      <div className="flex h-[100vh] w-full flex-col justify-center items-center md:flex-row gap-4 mx-2 md:mx-6 z-10">
+        
+        <div className="w-4/5 md:w-1/3 p-6 bg-primary rounded py-16 shadow-lg">
+     
+          <h1 className='text-3xl font-mono text-purple-400  font-bold text-center'>Login</h1>
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-6 rounded-md">
             <input
-              className="border border-[#b37fc0] p-2 rounded-tl-3xl rounded-br-3xl mb-2 lg:text-xl lg:p-4 outline-none"
+              className="border border-gray-700 bg-gray-700 p-3 rounded focus:border-gray-600 text-gray-200 outline-none"
               type="text"
               name="phone"
-              placeholder="Phone number or email ..."
+              placeholder="Enter email ..."
             />
             <input
-              className="border border-[#b37fc0] p-2 rounded-tl-3xl rounded-br-3xl mb-2 lg:text-xl lg:p-4 outline-none"
+              className="border border-gray-700 bg-gray-700 p-3 rounded focus:border-gray-600 text-gray-200 outline-none"
               type="password"
               name="password"
-              placeholder="password ....."
+              placeholder="Enter password ....."
             />
             <button
-              className="text-white text-xl bg-purple-900 p-2 rounded-tl-3xl rounded-br-3xl lg:p-4"
+              className="text-white bg-purple-600 p-2  rounded lg:p-3"
               type="submit"
             >
               Log In
             </button>
           </form>
           <p className={`${error ? 'text-red-500 p-2 rounded-lg bg-red-100 text-center' : ''}`}>{error ? error : ''}</p>
-          <div>
-            <p className="text-center text-gray-600">Do not have any account? <Link to="/register" className="underline text-purple-600">Register</Link></p>
+          <div className="text-center">
+            <Link to='/register' className="text-center mx-auto text-gray-400">Do not have any account? <span className="underline text-purple-400"> Register</span> </Link>
+          </div>
+          <div className="text-center mt-4">
+            <button className="text-center text-sm mx-auto text-gray-400 hover:underline">Forgot password ?</button>
           </div>
         </div>
       </div>

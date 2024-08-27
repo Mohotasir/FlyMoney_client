@@ -25,8 +25,27 @@
   .my-transition {
     @apply transition-all duration-300 ease-linear;
   }
+  
+
 }
 
 /* utilities layer */
 @layer utilities {
+}
+
+/* Custom styles for PhoneInput */
+.phone-input .form-control {
+  @apply w-full p-3 border border-gray-700 bg-gray-700 text-gray-200 rounded;
+}
+
+.phone-input .flag-dropdown {
+  @apply border-gray-700 bg-gray-700;
+}
+
+.phone-input .selected-flag {
+  @apply bg-gray-700 text-gray-200 border-none outline-none;
+}
+
+.phone-input input[type="tel"] {
+  @apply bg-gray-700 text-gray-200  placeholder-gray-400 border-none outline-none;
 }
